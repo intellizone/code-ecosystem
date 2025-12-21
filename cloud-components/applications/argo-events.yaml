@@ -3,7 +3,7 @@ kind: Application
 metadata:
   finalizers:
   - resources-finalizer.argocd.argoproj.io/foreground
-  name: git-actions
+  name: argo-events
   namespace: argocd
 spec:
   destination:
@@ -11,9 +11,10 @@ spec:
     namespace: argo-events
   project: default
   source:
-    path: ./kustomize/git-actions
-    repoURL: git@git-server.git-server/suriyaprakash/cloud-deploy.git
+    path: ./cloud-components/kustomize/argo-events/overlays/dev
+    repoURL: https://github.com/intellizone/code-ecosystem.git
     targetRevision: HEAD
   syncPolicy:
-    syncOptions: []
+    syncOptions:
+      - CreateNamespace=true
     automated: {}

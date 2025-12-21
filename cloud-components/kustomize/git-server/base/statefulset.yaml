@@ -24,8 +24,8 @@ spec:
           - |
             apk add --no-cache openssh git curl &&
             ssh-keygen -A &&
-            adduser -D git -h /suriyaprakash &&
-            chown -R git:git /suriyaprakash &&
+            adduser -D git -h /code-ecosystem &&
+            chown -R git:git /code-ecosystem &&
             sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config &&
             passwd -u git &&
             /usr/sbin/sshd -D
@@ -34,7 +34,7 @@ spec:
           containerPort: 22
         volumeMounts:
         - name: git-data
-          mountPath: /suriyaprakash
+          mountPath: /code-ecosystem
         
       volumes:
         - name: git-data

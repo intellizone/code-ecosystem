@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io/foreground
+  name: readinglist
+  namespace: argocd
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev
+  project: default
+  source:
+    path: ./kustomize/readinglist/dev
+    repoURL: git@git-server.git-server/code-ecosystem/cloud-deploy.git
+    targetRevision: HEAD
+  syncPolicy:
+    syncOptions: []
+    automated: {}

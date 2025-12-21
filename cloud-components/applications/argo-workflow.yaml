@@ -11,8 +11,8 @@ spec:
     namespace: argo
   project: default
   source:
-    path: ./kustomize/argo-workflow/overlays/dev
-    repoURL: https://github.com/intellizone/Certified-Argo-Project-Associate-CAPA.git
+    path: ./cloud-components/kustomize/argo-workflow/overlays/dev
+    repoURL: https://github.com/intellizone/code-ecosystem.git
     targetRevision: HEAD
   syncPolicy:
     syncOptions:

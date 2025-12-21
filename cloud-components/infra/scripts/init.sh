@@ -37,6 +37,7 @@ create_cluster(){
     echo
     echo "---------------------------------------------"
     echo
+    install_app git-server
     install_app istio
     kubectl wait applications istio -n argocd --for=jsonpath='{.status.sync.status}=Synced' --timeout=180s
     kubectl wait applications istio -n argocd --for=jsonpath='{.status.health.status}=Healthy' --timeout=180s

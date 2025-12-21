@@ -3,16 +3,16 @@ kind: Application
 metadata:
   finalizers:
   - resources-finalizer.argocd.argoproj.io/foreground
-  name: argo-ingress
+  name: istio
   namespace: argocd
 spec:
   destination:
     server: https://kubernetes.default.svc
-    namespace: argocd
+    namespace: istio-system
   project: default
   source:
-    path: ./kustomize/argocd
-    repoURL: https://github.com/intellizone/Certified-Argo-Project-Associate-CAPA.git
+    path: ./cloud-components/kustomize/istio
+    repoURL: https://github.com/intellizone/code-ecosystem.git
     targetRevision: HEAD
   syncPolicy:
     automated: {}

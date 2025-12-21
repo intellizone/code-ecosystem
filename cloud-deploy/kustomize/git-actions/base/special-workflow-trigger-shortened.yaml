@@ -63,11 +63,11 @@ spec:
                           chmod 600 /root/.ssh/id_rsa
                           ssh-keyscan git-server.git-server >> /root/.ssh/known_hosts
                           echo "Building repository {{inputs.parameters.repo_name}}"
-                          git clone ssh://git@git-server.git-server/suriyaprakash/{{inputs.parameters.repo_name}}.git
+                          git clone ssh://git@git-server.git-server/code-ecosystem/{{inputs.parameters.repo_name}}.git
                           cd {{inputs.parameters.repo_name}}
                           ./scripts/build.sh registry.localhost:5000 {{inputs.parameters.repo_name}} {{inputs.parameters.version}}
                           cd ..
-                          git clone ssh://git@git-server.git-server/suriyaprakash/cloud-deploy.git
+                          git clone ssh://git@git-server.git-server/code-ecosystem/cloud-deploy.git
                           cd cloud-deploy
                           git config --global user.email "version-updater@localhost"
                           git config --global user.name "Version Updater"
