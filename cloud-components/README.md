@@ -1,19 +1,20 @@
-# Certified-Argo-Project-Associate-CAPA
-Certified Argo Project Associate (CAPA)
+# Cloud Components - GitOps Infrastructure
 
+Infrastructure components and configurations for the CODE Ecosystem project, designed for learning **Certified Argo Project Associate (CAPA)** concepts.
 
 ---
 
 ## 🚀 Quick Start
 
-To set up a local Kind cluster with Istio and ArgoCD, follow the step-by-step guide:
+To set up a local Kubernetes cluster (K3d or Kind) with Istio and ArgoCD, follow the step-by-step guide:
 
 👉 **[Setup Guide → infra/README.md](infra/README.md)**
 
 This includes:
 
-- Kind cluster creation
+- K3d/Kind cluster creation
 - Istio & ArgoCD installation
+- Git server deployment
 - Accessing the ArgoCD UI
 - Cleanup steps
 
@@ -22,12 +23,21 @@ This includes:
 ## 📚 Resources
 
 - [ArgoCD Documentation](https://argo-cd.readthedocs.io/)
+- [Argo Workflows Documentation](https://argoproj.github.io/argo-workflows/)
+- [Argo Events Documentation](https://argoproj.github.io/argo-events/)
+- [Argo Rollouts Documentation](https://argo-rollouts.readthedocs.io/)
 - [Istio Documentation](https://istio.io/)
+- [K3d Documentation](https://k3d.io/)
 - [Kind Documentation](https://kind.sigs.k8s.io/)
+- [Kustomize Documentation](https://kustomize.io/)
 
 ---
 
-# Introduction to Argo
+# 📖 Learning Guide: Argo Projects & GitOps
+
+This section covers the theory and concepts needed for the CAPA certification.
+
+---
 
 ## What Is GitOps?
 - Backbone of modern Software delivery practice
@@ -59,20 +69,34 @@ features:
 - safely deploy artifacts into Production
 
 ### Argo Workflows
-- A kind of ci tool same like jenkins
+- Kubernetes-native workflow engine for orchestrating parallel jobs
+- Container-native workflow engine (similar to Jenkins but Kubernetes-native)
+- Supports DAGs (Directed Acyclic Graphs) and step-based workflows
+- Used for CI/CD, batch processing, and machine learning pipelines
 
 ### Argo Events
-- event-driven workflow automation framework
-- helps you trigger Kubernetes objects, Argo Workflows, serverless workloads, and other processes in response to events from various sources such as webhooks, S3, schedules, messaging queues, GCP PubSub, and more. It supports events from over 20 event sources and allows you to customize business-level constraint logic for workflow automation.
-- 2 components of argo workflow: Trigger and Event Sources.
+- Event-driven workflow automation framework
+- Triggers Kubernetes objects, Argo Workflows, serverless workloads, and other processes in response to events
+- Supports 20+ event sources: webhooks, S3, schedules, messaging queues, GCP PubSub, and more
+- Allows customization of business-level constraint logic for workflow automation
 
-### Argo rollouts
-- progressive delivery controller
-- born because k8s does not support deployment strategies by its own
-- helps with
-    - blue-green and canary update strategies
-    - integrates with service meshes and ingress controllers to shape traffic
-    - and automates promotion and rollback based on analysis
+**Key Components:**
+- **Event Sources**: Define where events come from (webhooks, Git, queues, etc.)
+- **Sensors**: Define what happens when events are received (triggers)
+- **EventBus**: Message bus for event communication
+- **Triggers**: Actions to execute (create workflows, K8s resources, etc.)
+
+### Argo Rollouts
+- Progressive delivery controller for Kubernetes
+- Extends Kubernetes Deployment capabilities with advanced deployment strategies
+- Native Kubernetes doesn't support canary/blue-green deployments out of the box
+
+**Features:**
+- Blue-green and canary update strategies
+- Integrates with service meshes and ingress controllers to shape traffic
+- Automated promotion and rollback based on analysis
+- Integration with metric providers (Prometheus, Datadog, New Relic, etc.)
+- Analysis runs for automated deployment validation
 
 Quiz:
 
@@ -128,17 +152,18 @@ Ans: D
     - Sync
     - Refresh
 
-### Core componmenmts
-https://argo-cd.readthedocs.io/en/stable/operator-manual/architecture/
+### Core Components
+
+**Reference:** https://argo-cd.readthedocs.io/en/stable/operator-manual/architecture/
 
 <img src="https://argo-cd.readthedocs.io/en/stable/assets/argocd_architecture.png" 
      onerror="this.onerror=null; this.src='static/argocd_architecture.png';" 
      alt="argocd_architecture" />
 
-- controllers
-- API Server
-- Repository Server
-- Application Controller
+**Main Components:**
+- **API Server**: Exposes the API consumed by Web UI, CLI, and CI/CD systems
+- **Repository Server**: Internal service that maintains a local cache of Git repositories
+- **Application Controller**: Kubernetes controller that continuously monitors running applications and compares current state against desired state
 
 ![argocd_architecture_simple](static/argocd_architecture_simple.png)
 
@@ -147,17 +172,21 @@ https://argo-cd.readthedocs.io/en/stable/operator-manual/architecture/
 ![Argo CD reconciliation loop](static/argo_cd_reconciliation_loop.png)
 
 ### Synchronization Principles
-- Customization Solutions
-    - Resource hooks --> uses kind: Job
-        - PreSync
-        - Sync
-        - PostSync
-        - Skip
-        - SyncFail
 
-    https://argo-cd.readthedocs.io/en/stable/user-guide/resource_hooks/
-    - Sync waves
-        each sync wave is 2 sec delayed, to modify it update this environment variable ARGOCD_SYNC_WAVE_DELAY
+**Resource Hooks** (using `kind: Job`):
+- `PreSync`: Runs before the sync operation
+- `Sync`: Runs during the sync operation
+- `PostSync`: Runs after all resources are synced
+- `Skip`: Skips the resource during sync
+- `SyncFail`: Runs when sync operation fails
+
+**Reference:** https://argo-cd.readthedocs.io/en/stable/user-guide/resource_hooks/
+
+**Sync Waves:**
+- Controls the order of resource synchronization
+- Each wave is delayed by 2 seconds (default)
+- Modify delay with: `ARGOCD_SYNC_WAVE_DELAY` environment variable
+- Lower numbered waves are synced first
 ### Simplifying Application Management
 - Application
   ```yaml
@@ -260,7 +289,11 @@ https://argo-cd.readthedocs.io/en/stable/operator-manual/architecture/
 
 
 
-## Workflow
+---
+
+## Argo Workflows Deep Dive
+
+### Workflow Structure
 
 A Workflow spec has two core parts:
 
@@ -427,11 +460,22 @@ A Workflow spec has two core parts:
               template: hello-world
   ```
 ### Argo Workflows Architecture
-- Argo Server - same like kube api server - provides REST API interface for submission monitoring and management 
-- Workflow Controller
-- Argo UI
 
-## Argo Rollouts
+**Components:**
+- **Argo Server**: REST API server (similar to Kubernetes API server)
+  - Provides API interface for workflow submission, monitoring, and management
+  - Serves the Web UI
+  - Handles authentication and authorization
+- **Workflow Controller**: Kubernetes controller that orchestrates workflow execution
+  - Watches for Workflow CRDs
+  - Manages workflow state transitions
+  - Schedules and monitors pods
+- **Argo UI**: Web-based interface for visualizing and managing workflows
+
+---
+
+## Argo Rollouts Deep Dive
+
 ### Continuous Integration
 - Frequent code commits
 - Automated tests
@@ -462,13 +506,18 @@ A Workflow spec has two core parts:
 ![alt text](static/Building_Blocks_of_Argo_Rollouts.png)
 
 ### Argo Rollouts Components
-- Argo Rollouts Controller
-- Argo Rollout Resource - customn resource - https://argo-rollouts.readthedocs.io/en/stable/features/specification/
-- Ingress - Kubernetes Ingress resource - https://kubernetes.io/docs/concepts/services-networking/ingress/
-- Service - Kubernetes Service resource  - https://kubernetes.io/docs/concepts/services-networking/service/
-- ReplicaSet - Kubernetes ReplicaSet resource  - https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
-- AnalysisTemplate and AnalysisRun
-- Metric Providers
+
+**Core Resources:**
+- **Rollouts Controller**: Watches for Rollout resources and manages progressive deployments
+- **Rollout Resource**: Custom resource that extends Deployment capabilities
+  - [Specification Reference](https://argo-rollouts.readthedocs.io/en/stable/features/specification/)
+- **Ingress/Service**: Standard Kubernetes resources for traffic routing
+  - [Ingress Docs](https://kubernetes.io/docs/concepts/services-networking/ingress/)
+  - [Service Docs](https://kubernetes.io/docs/concepts/services-networking/service/)
+- **ReplicaSet**: Manages different versions during rollout
+  - [ReplicaSet Docs](https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/)
+- **AnalysisTemplate & AnalysisRun**: Define and execute deployment validation metrics
+- **Metric Providers**: External systems for analysis (Prometheus, Datadog, etc.)
 
 ### Argo Rollouts Functionalities
 - Blue-green deployments
@@ -478,13 +527,32 @@ A Workflow spec has two core parts:
 - Automated decision making
 ---
 
-## Argo Events
+## Argo Events Deep Dive
+
 ### Event-Driven Architecture
+
 ![Event-Driven Architecture](static/Event-Driven_Architecture.png)
-- Event Source
-- Sensor
-- EventBus
-- Trigger
+
+**Architecture Components:**
+- **Event Source**: Defines the source of events (webhooks, Git, S3, queues, etc.)
+  - Creates an EventSource custom resource
+  - Listens for events and publishes them to EventBus
+- **EventBus**: Message transport layer (NATS-based by default)
+  - Provides pub/sub messaging between EventSources and Sensors
+- **Sensor**: Listens to events and triggers actions
+  - Defines dependencies (which events to listen for)
+  - Defines triggers (what to do when events match)
+- **Trigger**: Action to execute when event conditions are met
+  - Can create Kubernetes resources, Argo Workflows, HTTP requests, etc.
+
+### Implementation in This Project
+
+In the CODE Ecosystem, Argo Events orchestrates the CI/CD pipeline:
+
+1. **EventSource** (`webhook.yaml`): Listens on port 12000 for Git push events
+2. **Sensor** (`special-workflow-trigger-shortened.yaml`): Triggers build workflow when events received
+3. **Workflow**: Builds Docker image, updates manifests, pushes to Git
+4. **ArgoCD**: Detects manifest changes and syncs deployment
 
 ## 🧾 License
 
