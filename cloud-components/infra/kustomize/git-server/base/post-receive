@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Read the push information from stdin
+while read oldrev newrev refname; do
+  # if pushed to master branch, trigger this curl
+  if [ "$refname" = "refs/heads/main" ] || [ "$refname" = "refs/heads/master" ]; then
+    echo "Pushed to main/master branch, triggering webhook..."
+    # get version as year + month + commit hash first 7 characters
+    VERSION=v$(date +%y.%m)-$(echo $newrev | cut -c1-7)
+    echo "Using version: $VERSION"
+    curl -d "{\"repo_name\":\"readinglist\",\"version\":\"$VERSION\"}" -H "Content-Type: application/json" -X POST http://webhook-eventsource-svc.argo-events:12000/example
+  else
+    echo "Not pushed to main/master branch, skipping webhook."
+  fi
+done

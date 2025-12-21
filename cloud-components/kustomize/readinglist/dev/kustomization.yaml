@@ -1,0 +1,42 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: dev
+
+resources:
+- ../base
+
+images:
+- name: registry.localhost:5000/readinglist
+  newTag: v25.12-5600b6b
+
+patches:
+- target:
+    kind: VirtualService
+    name: readinglist
+  patch: |-
+    - op: replace
+      path: /spec/hosts/0
+      value: readinglist-dev.localhost
+- target:
+    kind: Gateway
+    name: readinglist
+  patch: |-
+    - op: replace
+      path: /spec/servers/0/hosts/0
+      value: readinglist-dev.localhost
+
+replacements:
+- source:
+    kind: Deployment
+    name: readinglist
+    fieldPath: spec.template.spec.containers.[name=readinglist].image
+    options:
+      delimiter: ":"
+      index: 2
+  targets:
+  - select:
+      kind: ConfigMap
+      name: readinglist-config
+    fieldPaths:
+    - data.VERSION

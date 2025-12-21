@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io/foreground
+  name: argo-events
+  namespace: argocd
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argo-events
+  project: default
+  source:
+    path: ./kustomize/argo-events/overlays/dev
+    repoURL: https://github.com/intellizone/Certified-Argo-Project-Associate-CAPA.git
+    targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated: {}

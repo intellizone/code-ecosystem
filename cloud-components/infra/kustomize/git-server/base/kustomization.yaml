@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: git-server
+
+metadata:
+  name: git-server
+
+commonLabels:
+  app: git-server
+
+resources:
+- namespace.yaml
+- pvc.yaml
+- statefulset.yaml
+- service.yaml

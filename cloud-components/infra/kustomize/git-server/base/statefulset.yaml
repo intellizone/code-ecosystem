@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: git-server
+  name: git-server
+  namespace: git-server
+spec:
+  serviceName: "git-server"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: git-server
+  template:
+    metadata:
+      labels:
+        app: git-server
+    spec:
+      containers:
+      - image: alpine:3.23
+        name: alpine
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            apk add --no-cache openssh git curl &&
+            ssh-keygen -A &&
+            adduser -D git -h /suriyaprakash &&
+            chown -R git:git /suriyaprakash &&
+            sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config &&
+            passwd -u git &&
+            /usr/sbin/sshd -D
+        ports:
+        - protocol: TCP
+          containerPort: 22
+        volumeMounts:
+        - name: git-data
+          mountPath: /suriyaprakash
+        
+      volumes:
+        - name: git-data
+          persistentVolumeClaim:
+            claimName: git-data
