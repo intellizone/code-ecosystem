@@ -8,7 +8,7 @@ resources:
 
 images:
 - name: registry.localhost:5000/readinglist
-  newTag: v25.12-5600b6b
+  newTag: v25.12-198c24d
 
 patches:
 - target:
