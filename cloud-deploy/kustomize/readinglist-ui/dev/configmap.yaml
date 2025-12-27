@@ -1,0 +1,3 @@
+ENV=dev
+VERSION=v25.12-2104ea9
+URL=http://readinglist:8080

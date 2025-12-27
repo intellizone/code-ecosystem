@@ -21,6 +21,10 @@ spec:
               metadata:
                 generateName: builder-
               spec:
+                ttlStrategy:
+                  secondsAfterCompletion: 1800 # Time to live after the workflow is completed, regardless of its status (overrides secondsAfterSuccess and secondsAfterFailure).
+                  secondsAfterSuccess: 120     # Time to live after workflow is successful
+                  secondsAfterFailure: 300     # Time to live after workflow fails
                 serviceAccountName: operate-workflow-sa
                 entrypoint: build
                 arguments:
@@ -39,7 +43,7 @@ spec:
                         - name: version
                     sidecars:
                       - name: dind
-                        image: docker:dind
+                        image: registry.localhost:5000/docker:dind
                         env:
                           - name: DOCKER_TLS_CERTDIR
                             value: ""
@@ -49,7 +53,7 @@ spec:
                           privileged: true
                         mirrorVolumeMounts: true
                     container:
-                      image: docker:latest
+                      image: registry.localhost:5000/docker:latest
                       env:
                         - name: DOCKER_HOST
                           value: tcp://localhost:2375
@@ -57,6 +61,7 @@ spec:
                         - /bin/sh
                         - -c
                         - |
+                          set -e
                           echo "Setting up SSH keys"
                           mkdir -p /root/.ssh
                           cp /ssh-key/id_rsa /root/.ssh/id_rsa
@@ -65,14 +70,21 @@ spec:
                           echo "Building repository {{inputs.parameters.repo_name}}"
                           git clone ssh://git@git-server.git-server/code-ecosystem/{{inputs.parameters.repo_name}}.git
                           cd {{inputs.parameters.repo_name}}
+                          files_changed=$(git show --pretty="" --name-only)
                           ./scripts/build.sh registry.localhost:5000 {{inputs.parameters.repo_name}} {{inputs.parameters.version}}
                           cd ..
                           git clone ssh://git@git-server.git-server/code-ecosystem/cloud-deploy.git
                           cd cloud-deploy
                           git config --global user.email "version-updater@localhost"
                           git config --global user.name "Version Updater"
-                          sed -i 's|newTag: .*|newTag: {{inputs.parameters.version}}|g' ./kustomize/{{inputs.parameters.repo_name}}/dev/kustomization.yaml
-                          git add ./kustomize/{{inputs.parameters.repo_name}}/dev/kustomization.yaml
+                          if [ "{{inputs.parameters.repo_name}}" = "readinglist" ]; then
+                            if echo "$files_changed" | grep -qE '(cmd/web)'; then
+                              sed -i 's|VERSION=.*|VERSION={{inputs.parameters.version}}|g' ./kustomize/{{inputs.parameters.repo_name}}-ui/dev/configmap.yaml
+                              git add ./kustomize/{{inputs.parameters.repo_name}}-ui/dev/configmap.yaml
+                            fi
+                          fi
+                          sed -i 's|VERSION=.*|VERSION={{inputs.parameters.version}}|g' ./kustomize/{{inputs.parameters.repo_name}}/dev/configmap.yaml
+                          git add ./kustomize/{{inputs.parameters.repo_name}}/dev/configmap.yaml
                           git commit -m "Update {{inputs.parameters.repo_name}} to version {{inputs.parameters.version}}"
                           git push origin master
 

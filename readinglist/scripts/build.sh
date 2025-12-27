@@ -21,9 +21,9 @@ while ! docker info > /dev/null 2>&1; do
 done
 
 echo "docker build -t ${REGISTRY}/${APP_NAME}:${VERSION} ."
-docker build -t ${REGISTRY}/${APP_NAME}:${VERSION} .
+docker build --network=host -t ${REGISTRY}/${APP_NAME}:${VERSION} . || ( echo "Docker build failed" && exit 1 )
 
 # Push the Docker image to the registry
 echo "Pushing the Docker image to the registry..."
 echo "docker push ${REGISTRY}/${APP_NAME}:${VERSION}"
-docker push ${REGISTRY}/${APP_NAME}:${VERSION}
+docker push ${REGISTRY}/${APP_NAME}:${VERSION} || ( echo "Docker push failed" && exit 1 )

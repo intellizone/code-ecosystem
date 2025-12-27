@@ -1,0 +1,8 @@
+resources:
+- argo-events.yaml
+- argo-ingress.yaml
+- argo-workflow.yaml
+- git-server.yaml
+- git-actions.yaml
+- istio.yaml
+- postgres.yaml

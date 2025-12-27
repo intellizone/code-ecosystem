@@ -68,4 +68,16 @@ get_argocd_login(){
     echo "password: $(cat infra/admin-pass.txt)"
 }
 
+proxy_docker_image(){
+  images_file="infra/images.txt"
+  while IFS= read -r image; do
+    echo "Pulling image: $image"
+    docker pull "$image"
+    echo "Tagging image for local registry: localhost:5000/$image"
+    docker tag "$image" "localhost:5000/$image"
+    echo "Pushing image to local registry: localhost:5000/$image"
+    docker push "localhost:5000/$image"
+  done < "$images_file"
+}
+
 "$@"

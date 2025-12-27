@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: readinglist-config
-data:
-  VERSION: "v1.0.0"

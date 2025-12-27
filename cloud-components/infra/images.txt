@@ -1,0 +1,4 @@
+public.ecr.aws/ubuntu/ubuntu:24.04
+public.ecr.aws/docker/library/golang:1.24-alpine
+docker:dind
+docker:latest
