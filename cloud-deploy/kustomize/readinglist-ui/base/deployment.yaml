@@ -2,15 +2,15 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: readinglist
-  name: readinglist
+    app: readinglist-ui
+  name: readinglist-ui
 spec:
   progressDeadlineSeconds: 600
   replicas: 2
   revisionHistoryLimit: 5
   selector:
     matchLabels:
-      app: readinglist
+      app: readinglist-ui
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -19,27 +19,26 @@ spec:
   template:
     metadata:
       labels:
-        app: readinglist
+        app: readinglist-ui
     spec:
       containers:
       - image: registry.localhost:5000/readinglist:v0.0.1
         imagePullPolicy: IfNotPresent
-        name: readinglist
+        name: readinglist-ui
+        command: ["./readinglist-ui", "-port", "8080"]
         envFrom:
         - configMapRef:
-            name: readinglist-config
-        - secretRef:
-            name: readinglist-secret
+            name: readinglist-ui-config
         ports:
         - containerPort: 8080
           protocol: TCP
         livenessProbe:
           httpGet:
-            path: /api/v1/healthcheck
+            path: /healthz
             port: 8080
         readinessProbe:
           httpGet:
-            path: /api/v1/healthcheck
+            path: /healthz
             port: 8080
       dnsPolicy: ClusterFirst
       restartPolicy: Always

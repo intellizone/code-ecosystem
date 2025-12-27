@@ -2,7 +2,6 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 metadata:
   name: git-action
-  namespace: git-action
 
 commonLabels:
   app: git-action
@@ -10,5 +9,5 @@ commonLabels:
 resources:
 - sensor-rbac.yaml
 - webhook.yaml
-- special-workflow-trigger-shortened.yaml
+- git-action-workflow-submit.yaml
 - eventbus/native.yaml

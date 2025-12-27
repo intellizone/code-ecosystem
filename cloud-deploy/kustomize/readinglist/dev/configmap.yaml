@@ -1,0 +1,3 @@
+ENV=dev
+VERSION=v25.12-bd9b2cd
+DB_HOST=postgres.dbeng.svc.cluster.local

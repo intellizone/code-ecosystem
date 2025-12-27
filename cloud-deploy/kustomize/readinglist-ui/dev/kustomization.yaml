@@ -7,7 +7,7 @@ resources:
 - ../base
 
 configMapGenerator:
-- name: readinglist-config
+- name: readinglist-ui-config
   envs:
   - configmap.yaml
 
@@ -17,14 +17,14 @@ generatorOptions:
 patches:
 - target:
     kind: VirtualService
-    name: readinglist
+    name: readinglist-ui
   patch: |-
     - op: replace
       path: /spec/hosts/0
       value: readinglist-dev.localhost
 - target:
     kind: Gateway
-    name: readinglist
+    name: readinglist-ui
   patch: |-
     - op: replace
       path: /spec/servers/0/hosts/0
@@ -33,14 +33,14 @@ patches:
 replacements:
 - source:
     kind: ConfigMap
-    name: readinglist-config
+    name: readinglist-ui-config
     fieldPath: data.VERSION
   targets:
   - select:
       kind: Deployment
-      name: readinglist
+      name: readinglist-ui
     fieldPaths: 
-    - spec.template.spec.containers.[name=readinglist].image
+    - spec.template.spec.containers.[name=readinglist-ui].image
     options:
       delimiter: ":"
       index: 2

@@ -1,2 +1,4 @@
+namespace: argo-events
+
 resources:
 - base

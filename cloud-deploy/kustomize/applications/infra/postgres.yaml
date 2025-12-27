@@ -3,16 +3,16 @@ kind: Application
 metadata:
   finalizers:
   - resources-finalizer.argocd.argoproj.io/foreground
-  name: git-server
+  name: postgres
   namespace: argocd
 spec:
   destination:
     server: https://kubernetes.default.svc
-    namespace: git-server
+    namespace: default
   project: default
   source:
-    path: ./cloud-components/kustomize/git-server
-    repoURL: https://github.com/intellizone/code-ecosystem.git
+    path: ./kustomize/pgdb
+    repoURL: git@git-server.git-server/code-ecosystem/cloud-deploy.git
     targetRevision: HEAD
   syncPolicy:
     syncOptions: []

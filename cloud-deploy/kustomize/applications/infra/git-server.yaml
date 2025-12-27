@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io/foreground
+  name: git-server
+  namespace: argocd
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: git-server
+  project: default
+  source:
+    path: ./cloud-components/kustomize/git-server
+    repoURL: https://github.com/intellizone/code-ecosystem.git
+    targetRevision: HEAD
+  syncPolicy:
+    syncOptions: []
+    automated: {}

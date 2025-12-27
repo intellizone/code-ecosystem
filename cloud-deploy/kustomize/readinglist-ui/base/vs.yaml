@@ -1,20 +1,20 @@
 apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
-  name: readinglist
+  name: readinglist-ui
 spec:
   hosts:
   - "readinglist.localhost"
   gateways:
-  - readinglist
+  - readinglist-ui
   http:
   - match:
     - uri:
-        prefix: "/api/v1/books"
+        prefix: "/book"
     - uri:
-        exact: "/api/v1/healthcheck"
+        exact: "/"
     route:
     - destination:
         port:
           number: 8080
-        host: readinglist
+        host: readinglist-ui
