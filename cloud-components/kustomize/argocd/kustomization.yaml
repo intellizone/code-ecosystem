@@ -11,3 +11,4 @@ commonLabels:
 resources:
 - vs.yaml
 - gw.yaml
+- known-hosts-cm.yaml

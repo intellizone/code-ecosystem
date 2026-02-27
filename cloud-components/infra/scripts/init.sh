@@ -1,6 +1,8 @@
 #!/bin/bash
 
 export KUBECONFIG=.kube/config-iws
+export ARGOCD_VERSION=v3.2.7
+
 
 create_cluster(){
   echo "creating cluster...."
@@ -23,7 +25,7 @@ create_cluster(){
     echo "local cluster creation successful"
     kubectl create ns argocd
 #    helm upgrade -f infra/values.yaml -n argocd argocd argo/argo-cd --install
-    kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+    kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/$ARGOCD_VERSION/manifests/install.yaml
     kubectl wait --for=create secret/argocd-initial-admin-secret -n argocd --timeout=180s
     kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d > infra/admin-pass.txt
     # disable tls
@@ -38,10 +40,12 @@ create_cluster(){
     echo "---------------------------------------------"
     echo
     install_app git-server
+    sleep 20
     install_app istio
     kubectl wait applications istio -n argocd --for=jsonpath='{.status.sync.status}=Synced' --timeout=180s
     kubectl wait applications istio -n argocd --for=jsonpath='{.status.health.status}=Healthy' --timeout=180s
     install_app argo-ingress
+    install_app applications
   else
     echo "Something went wrong please debug..."
     exit 1

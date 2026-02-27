@@ -12,7 +12,7 @@ spec:
   project: default
   source:
     path: ./kustomize/applications
-    repoURL: git@git-server.git-server/code-ecosystem/cloud-deploy.git
+    repoURL: git@git-server.git-server:/code-ecosystem/cloud-deploy.git
     targetRevision: HEAD
   syncPolicy:
     automated: {}
