@@ -1,3 +1,4 @@
 resources:
 - readinglist-dev.yaml
 - readinglist-ui-dev.yaml
+- microservice-dev.yaml

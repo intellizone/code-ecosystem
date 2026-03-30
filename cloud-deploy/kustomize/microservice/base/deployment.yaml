@@ -2,15 +2,15 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: readinglist-ui
-  name: readinglist-ui
+    app: microservice
+  name: microservice
 spec:
   progressDeadlineSeconds: 600
-  replicas: 0
+  replicas: 2
   revisionHistoryLimit: 5
   selector:
     matchLabels:
-      app: readinglist-ui
+      app: microservice
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -19,26 +19,25 @@ spec:
   template:
     metadata:
       labels:
-        app: readinglist-ui
+        app: microservice
     spec:
       containers:
-      - image: registry.localhost:5000/readinglist:v0.0.1
+      - image: registry.localhost:5000/microservice:v0.0.1
         imagePullPolicy: IfNotPresent
-        name: readinglist-ui
-        command: ["./readinglist-ui", "-port", "8080"]
+        name: microservice
         envFrom:
         - configMapRef:
-            name: readinglist-ui-config
+            name: microservice-config
         ports:
         - containerPort: 8080
           protocol: TCP
         livenessProbe:
           httpGet:
-            path: /healthz
+            path: /api/v1/healthcheck
             port: 8080
         readinessProbe:
           httpGet:
-            path: /healthz
+            path: /api/v1/healthcheck
             port: 8080
       dnsPolicy: ClusterFirst
       restartPolicy: Always

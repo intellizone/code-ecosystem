@@ -1,0 +1,46 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: dev
+
+resources:
+- ../base
+
+configMapGenerator:
+- name: microservice-config
+  envs:
+  - configmap.yaml
+
+generatorOptions:
+  disableNameSuffixHash: false
+
+patches:
+- target:
+    kind: VirtualService
+    name: microservice
+  patch: |-
+    - op: replace
+      path: /spec/hosts/0
+      value: microservice-dev.localhost
+- target:
+    kind: Gateway
+    name: microservice
+  patch: |-
+    - op: replace
+      path: /spec/servers/0/hosts/0
+      value: microservice-dev.localhost
+
+replacements:
+- source:
+    kind: ConfigMap
+    name: microservice-config
+    fieldPath: data.VERSION
+  targets:
+  - select:
+      kind: Deployment
+      name: microservice
+    fieldPaths: 
+    - spec.template.spec.containers.[name=microservice].image
+    options:
+      delimiter: ":"
+      index: 2

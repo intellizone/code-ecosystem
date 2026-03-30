@@ -14,7 +14,7 @@ WORKDIR /app/readinglist
 
 COPY --from=builder /app/readinglist .
 COPY --from=builder /app/readinglist-ui .
-
+COPY ./ui ./ui
 EXPOSE 8080
 
 CMD ["./readinglist", "-port", "8080"]

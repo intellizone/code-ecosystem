@@ -1,0 +1,16 @@
+services:
+  code-ecosystem-local:
+    image: golang:1.24
+    container_name: code-ecosystem-local
+    entrypoint: ["sleep","infinity"]
+    volumes:
+      - ..:/app
+    working_dir: /app
+    networks:
+      - learning
+    ports:
+      - 2346:2345
+      - 3080:8080
+networks:
+  learning:
+    name: learning

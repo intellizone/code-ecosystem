@@ -66,7 +66,14 @@ spec:
                           mkdir -p /root/.ssh
                           cp /ssh-key/id_rsa /root/.ssh/id_rsa
                           chmod 600 /root/.ssh/id_rsa
-                          ssh-keyscan git-server.git-server >> /root/.ssh/known_hosts
+                          echo "Waiting for git-server DNS to be ready..."
+                          for i in $(seq 1 10); do
+                            if ssh-keyscan git-server.git-server >> /root/.ssh/known_hosts 2>/dev/null; then
+                              break
+                            fi
+                            echo "Attempt $i: git-server not reachable, retrying in 3s..."
+                            sleep 3
+                          done
                           echo "Building repository {{inputs.parameters.repo_name}}"
                           git clone ssh://git@git-server.git-server:/code-ecosystem/{{inputs.parameters.repo_name}}.git
                           cd {{inputs.parameters.repo_name}}

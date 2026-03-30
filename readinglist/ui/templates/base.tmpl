@@ -1,0 +1,30 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>{{template "title" .}} - ReadingList</title>
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <header>
+    <h1><a href="/">Reading List</a></h1>
+  </header>
+  {{template "nav" .data}}
+  <main>
+    {{if eq .page "home"}}
+      {{template "home" .data}}
+    {{else if eq .page "create"}}
+      {{template "create"}}
+    {{else if eq .page "view"}}
+      {{template "view" .data}}
+    {{end}}
+  </main>
+  <footer>Powered by <a href="https://golang.org/">Go</a></footer>
+</body>
+{{end}}

@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package inventory;
+
+option go_package = "./inventorypb";
+
+message Product{
+  int32 id = 1;
+  string name = 2;
+  string description = 3;
+  int32 stock = 4;
+}
