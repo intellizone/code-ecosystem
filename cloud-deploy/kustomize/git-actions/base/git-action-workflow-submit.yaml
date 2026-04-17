@@ -32,6 +32,9 @@ spec:
                     - name: repo_name
                       # the value will get overridden by event payload from test-dep
                       value: readinglist
+                    - name: app_name
+                      # the value will get overridden by event payload from test-dep
+                      value: ""
                     - name: version
                       # the value will get overridden by event payload from test-dep
                       value: v0.0.1
@@ -40,6 +43,7 @@ spec:
                     inputs:
                       parameters:
                         - name: repo_name
+                        - name: app_name
                         - name: version
                     sidecars:
                       - name: dind
@@ -62,6 +66,11 @@ spec:
                         - -c
                         - |
                           set -e
+                          # Fallback: if app_name is empty, use repo_name
+                          APP_NAME="{{inputs.parameters.app_name}}"
+                          if [ -z "$APP_NAME" ]; then
+                            APP_NAME="{{inputs.parameters.repo_name}}"
+                          fi
                           echo "Setting up SSH keys"
                           mkdir -p /root/.ssh
                           cp /ssh-key/id_rsa /root/.ssh/id_rsa
@@ -78,7 +87,7 @@ spec:
                           git clone ssh://git@git-server.git-server:/code-ecosystem/{{inputs.parameters.repo_name}}.git
                           cd {{inputs.parameters.repo_name}}
                           files_changed=$(git show --pretty="" --name-only)
-                          ./scripts/build.sh registry.localhost:5000 {{inputs.parameters.repo_name}} {{inputs.parameters.version}}
+                          ./scripts/build.sh registry.localhost:5000 $APP_NAME {{inputs.parameters.version}}
                           cd ..
                           git clone ssh://git@git-server.git-server:/code-ecosystem/cloud-deploy.git
                           cd cloud-deploy
@@ -90,9 +99,9 @@ spec:
                               git add ./kustomize/{{inputs.parameters.repo_name}}-ui/dev/configmap.yaml
                             fi
                           fi
-                          sed -i 's|VERSION=.*|VERSION={{inputs.parameters.version}}|g' ./kustomize/{{inputs.parameters.repo_name}}/dev/configmap.yaml
-                          git add ./kustomize/{{inputs.parameters.repo_name}}/dev/configmap.yaml
-                          git commit -m "Update {{inputs.parameters.repo_name}} to version {{inputs.parameters.version}}"
+                          sed -i 's|VERSION=.*|VERSION={{inputs.parameters.version}}|g' ./kustomize/$APP_NAME/dev/configmap.yaml
+                          git add ./kustomize/$APP_NAME/dev/configmap.yaml
+                          git commit -m "Update $APP_NAME to version {{inputs.parameters.version}}"
                           git push origin master
 
                       volumeMounts:
@@ -111,5 +120,10 @@ spec:
               dest: spec.arguments.parameters.0.value
             - src:
                 dependencyName: test-dep
-                dataKey: body.version
+                dataKey: body.app_name
               dest: spec.arguments.parameters.1.value
+            - src:
+                dependencyName: test-dep
+                dataKey: body.version
+              dest: spec.arguments.parameters.2.value
+            

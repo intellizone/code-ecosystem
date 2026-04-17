@@ -1,0 +1,15 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: registryservice
+spec:
+  hosts:
+  - "registryservice.localhost"
+  gateways:
+  - registryservice
+  http:
+  - route:
+    - destination:
+        port:
+          number: 8080
+        host: registryservice

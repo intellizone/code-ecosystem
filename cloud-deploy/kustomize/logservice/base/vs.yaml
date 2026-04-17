@@ -1,0 +1,15 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: logservice
+spec:
+  hosts:
+  - "logservice.localhost"
+  gateways:
+  - logservice
+  http:
+  - route:
+    - destination:
+        port:
+          number: 8080
+        host: logservice

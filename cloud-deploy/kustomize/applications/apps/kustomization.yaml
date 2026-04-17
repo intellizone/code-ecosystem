@@ -2,3 +2,7 @@ resources:
 - readinglist-dev.yaml
 - readinglist-ui-dev.yaml
 - microservice-dev.yaml
+- registryservice-dev.yaml
+- logservice-dev.yaml
+- gradingservice-dev.yaml
+- teacherportal-dev.yaml

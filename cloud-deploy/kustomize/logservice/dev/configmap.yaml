@@ -1,0 +1,4 @@
+ENV=dev
+HOST=logservice
+PORT=8080
+VERSION=v26.04-df3aed8

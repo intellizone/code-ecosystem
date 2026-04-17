@@ -1,0 +1,15 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: gradingservice
+spec:
+  hosts:
+  - "gradingservice.localhost"
+  gateways:
+  - gradingservice
+  http:
+  - route:
+    - destination:
+        port:
+          number: 8080
+        host: gradingservice

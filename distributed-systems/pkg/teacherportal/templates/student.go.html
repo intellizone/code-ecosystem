@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student</title>
+  </head>
+  <body>
+    <h1><a href="/students">Grade Book</a> - {{.LastName}}, {{.FirstName}}</h1>
+    <table>
+      <tr>
+        <th>Title</th>
+        <th>Grade Type</th>
+        <th>Score</th>
+      </tr>
+      {{ range .Grades}}
+      <tr>
+        <td>{{.Title}}</td>
+        <td>{{.Type}}</td>
+        <td>{{.Score}}</td>
+      </tr>
+      {{ end }}
+    </table>
+    <fieldset>
+      <legend>Add a Grade</legend>
+      <form action="/students/{{.ID}}/grades" method="POST">
+        <table>
+          <tr>
+            <td>Title</td>
+            <td>
+              <input type="text" name="Title">
+            </td>
+          </tr>
+          <tr>
+            <td>Type</td>
+            <td>
+              <select name="Type" id="Type">
+                <option value="Test">Test</option>
+                <option value="Homework">Homework</option>
+                <option value="Quiz">Quiz</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>Score</td>
+            <td>
+              <input type="number" name="Score" min="0" max="100" step="1">
+            </td>
+          </tr>
+        </table>
+        <button type="submit">Submit</button>
+      </form>
+    </fieldset>
+  </body>
+</html>

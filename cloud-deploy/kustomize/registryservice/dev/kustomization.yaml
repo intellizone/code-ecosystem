@@ -1,0 +1,46 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: dev
+
+resources:
+- ../base
+
+configMapGenerator:
+- name: registryservice-config
+  envs:
+  - configmap.yaml
+
+generatorOptions:
+  disableNameSuffixHash: false
+
+patches:
+- target:
+    kind: VirtualService
+    name: registryservice
+  patch: |-
+    - op: replace
+      path: /spec/hosts/0
+      value: registryservice-dev.localhost
+- target:
+    kind: Gateway
+    name: registryservice
+  patch: |-
+    - op: replace
+      path: /spec/servers/0/hosts/0
+      value: registryservice-dev.localhost
+
+replacements:
+- source:
+    kind: ConfigMap
+    name: registryservice-config
+    fieldPath: data.VERSION
+  targets:
+  - select:
+      kind: Deployment
+      name: registryservice
+    fieldPaths: 
+    - spec.template.spec.containers.[name=registryservice].image
+    options:
+      delimiter: ":"
+      index: 2
